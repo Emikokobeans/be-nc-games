@@ -1,5 +1,12 @@
 const format = require('pg-format');
-const { formatCategoryData } = require('../utils/data-manipulation');
+const {
+  formatCategoryData,
+  formatUserData,
+  formatReviewData,
+  getReviewRef,
+  getCommentsCopy,
+  mapComments
+} = require('../utils/data-manipulation');
 const db = require('../connection');
 
 const seed = async (data) => {
@@ -51,8 +58,34 @@ name VARCHAR(100) NOT NULL);`);
     )
   );
 
-  // 1. create tables
-  // 2. insert data
+  const userValues = formatUserData(userData);
+  await db.query(
+    format(
+      `INSERT INTO users (username, avatar_url, name) VALUES %L RETURNING *;`,
+      userValues
+    )
+  );
+
+  const reviewValues = formatReviewData(reviewData);
+  const reference = await db.query(
+    format(
+      `INSERT INTO reviews (title, review_body, designer, review_img_url, votes, category, owner, created_at) VALUES %L RETURNING *;`,
+      reviewValues
+    )
+  );
+
+  const reviewRef = getReviewRef(reference);
+
+  const commentCopy = getCommentsCopy(commentData);
+
+  const mappedComments = mapComments(commentCopy, reviewRef);
+
+  await db.query(
+    format(
+      `INSERT INTO comments (author, review_id, votes, created_at, body) VALUES %L RETURNING *;`,
+      mappedComments
+    )
+  );
 };
 
 module.exports = seed;
