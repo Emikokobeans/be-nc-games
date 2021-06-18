@@ -6,7 +6,8 @@
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
-    "test": "jest"
+    "test": "jest",
+    "scrap": "psql -f scrap.sql > scrap.txt"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "dotenv": "^10.0.0",
     "jest": "^27.0.4",
+    "jest-sorted": "^1.0.12",
     "nodemon": "^2.0.7",
     "pg-format": "^1.0.4",
     "supertest": "^6.1.3"
@@ -29,5 +31,10 @@
   "dependencies": {
     "express": "^4.17.1",
     "pg": "^8.6.0"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "jest-sorted"
+    ]
   }
 }

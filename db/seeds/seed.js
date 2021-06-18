@@ -74,7 +74,7 @@ name VARCHAR(100) NOT NULL);`);
     )
   );
 
-  const reviewRef = getReviewRef(reference);
+  const reviewRef = getReviewRef(reference.rows);
 
   const commentCopy = getCommentsCopy(commentData);
 
