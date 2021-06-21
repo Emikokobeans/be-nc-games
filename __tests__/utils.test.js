@@ -258,7 +258,7 @@ describe('formatReviewData', () => {
   });
 });
 
-describe.only('comments', () => {
+describe('comments', () => {
   describe('getReviewRef', () => {
     test('returns an empty object, when passed an empty array', () => {
       const input = [];
