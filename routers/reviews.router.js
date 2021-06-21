@@ -1,11 +1,11 @@
 const reviewsRouter = require('express').Router();
 
 const {
-  getReviewID,
-  patchVotes,
   getReviews,
   getComments,
-  postComment
+  postComment,
+  getReviewID,
+  patchVotes
 } = require('../controllers/controllers');
 
 reviewsRouter.get('/', getReviews);

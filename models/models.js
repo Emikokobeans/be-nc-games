@@ -61,11 +61,7 @@ exports.updateVotes = (review_id, inc_votes) => {
   }
 };
 
-exports.selectReviews = (
-  sort_by = 'created_at',
-  order = 'asc',
-  category = null
-) => {
+exports.selectReviews = (sort_by = 'created_at', order = 'asc', category) => {
   const validColumns = [
     'title',
     'owner',
@@ -78,6 +74,17 @@ exports.selectReviews = (
     'category',
     'comment_count'
   ];
+  const validCategories = [
+    'strategy',
+    'hidden-roles',
+    'dexterity',
+    'push-your-luck',
+    'roll-and-write',
+    'deck-building',
+    'engine-building',
+    'euro game',
+    'social deduction'
+  ];
   const validOrders = ['asc', 'desc'];
 
   if (!validColumns.includes(sort_by) || !validOrders.includes(order)) {
@@ -88,8 +95,12 @@ exports.selectReviews = (
 
   const categoryValue = [];
   if (category) {
-    queryStr += ` WHERE category = $1`;
-    categoryValue.push(category);
+    if (!validCategories.includes(category)) {
+      return Promise.reject({ status: 404, msg: 'Bad request' });
+    } else {
+      queryStr += ` WHERE category = $1`;
+      categoryValue.push(category);
+    }
   }
 
   queryStr += ` GROUP BY reviews.review_id`;
@@ -99,11 +110,7 @@ exports.selectReviews = (
   queryStr += orderVariable;
 
   return db.query(queryStr, categoryValue).then((reviews) => {
-    if (reviews.rows.length > 0) {
-      return reviews.rows;
-    } else {
-      return Promise.reject({ status: 400, msg: 'Bad request' });
-    }
+    return reviews.rows;
   });
 };
 
@@ -111,7 +118,7 @@ exports.selectComments = (review_id) => {
   const idNum = parseInt(review_id);
   if (!Number.isNaN(idNum)) {
     return db
-      .query(`SELECT * FROM comments WHERE review_id = $1;`, [review_id])
+      .query(`SELECT * FROM reviews WHERE review_id = $1;`, [review_id])
       .then((result) => {
         if (result.rows.length === 0) {
           return Promise.reject({
@@ -119,7 +126,11 @@ exports.selectComments = (review_id) => {
             msg: 'Please provide a valid review_id'
           });
         } else {
-          return result.rows;
+          return db
+            .query(`SELECT * FROM comments WHERE review_id = $1;`, [review_id])
+            .then((res) => {
+              return res.rows;
+            });
         }
       });
   } else {

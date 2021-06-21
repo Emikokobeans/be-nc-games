@@ -74,7 +74,7 @@ describe('GET /api/reviews/:review_id', () => {
         expect(body.msg).toBe('Bad request');
       });
   });
-  test('responds with 400 when given an id that does not exist', () => {
+  test('responds with 404 when given an id that does not exist', () => {
     return request(app)
       .get('/api/reviews/49')
       .expect(404)
@@ -251,12 +251,22 @@ describe('GET /api/reviews', () => {
           expect(reviews).toBeSortedBy('created_at', { ascending: true });
         });
     });
-    test('responds with 400 when given an invalid category', () => {
+    test('responds with 404 when given an invalid category', () => {
       return request(app)
         .get('/api/reviews?category=nonsense')
-        .expect(400)
+        .expect(404)
         .then((result) => {
           expect(result.body.msg).toBe('Bad request');
+        });
+    });
+    test('responds with 200, when given a valid category but returns an empty array when it has no reviews', () => {
+      return request(app)
+        .get('/api/reviews?category=push-your-luck')
+        .expect(200)
+        .then((result) => {
+          const { reviews } = result.body;
+          expect(Array.isArray(reviews)).toBe(true);
+          expect(reviews).toHaveLength(0);
         });
     });
   });
@@ -298,6 +308,16 @@ describe('GET /api/reviews/:review_id/comments', () => {
       .expect(400)
       .then((res) => {
         expect(res.body.msg).toEqual('Bad request');
+      });
+  });
+  test('responds with 200 and an empty array when given a valid id that has no comments', () => {
+    return request(app)
+      .get('/api/reviews/5/comments')
+      .expect(200)
+      .then((result) => {
+        const { comments } = result.body;
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments).toHaveLength(0);
       });
   });
 });
