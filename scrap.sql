@@ -6,4 +6,6 @@
 
 -- SELECT * FROM comments WHERE EXISTS (SELECT * FROM reviews WHERE comments.review_id = 5)
 
-SELECT * FROM reviews WHERE review_id = 49
+-- SELECT * FROM reviews WHERE review_id = 49
+
+SELECT * FROM comments

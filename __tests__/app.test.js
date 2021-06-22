@@ -44,12 +44,13 @@ describe('GET /api/reviews/:review_id', () => {
         review.forEach((review) => {
           expect(review).toEqual(
             expect.objectContaining({
-              owner: expect.any(String),
-              title: expect.any(String),
+              owner: 'mallionaire',
+              title: 'Agricola',
               review_id: 1,
-              designer: expect.any(String),
-              review_img_url: expect.any(String),
-              category: expect.any(String),
+              designer: 'Uwe Rosenberg',
+              review_img_url:
+                'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+              category: 'euro game',
               created_at: expect.any(String),
               votes: expect.any(Number)
             })
@@ -94,13 +95,14 @@ describe('PATCH /api/reviews/:review_id', () => {
       .then((res) => {
         expect(res.body).toEqual({
           updated_review: {
-            owner: expect.any(String),
-            title: expect.any(String),
+            owner: 'mallionaire',
+            title: 'Agricola',
             review_id: 1,
-            review_body: expect.any(String),
-            designer: expect.any(String),
-            review_img_url: expect.any(String),
-            category: expect.any(String),
+            review_body: 'Farmyard fun!',
+            designer: 'Uwe Rosenberg',
+            review_img_url:
+              'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png',
+            category: 'euro game',
             created_at: expect.any(String),
             votes: 3
           }
@@ -381,6 +383,28 @@ describe('GET /api', () => {
       .expect(200)
       .then((result) => {
         expect(typeof result.body).toBe('object');
+      });
+  });
+});
+
+describe.only('DELETE /api/comments/:comment_id', () => {
+  test('responds with 204, no content and deletes the given comment', () => {
+    return request(app).delete('/api/comments/1').expect(204);
+  });
+  test('responds with 404 when given a non existent comment id', () => {
+    return request(app)
+      .delete('/api/comments/49')
+      .expect(404)
+      .then((result) => {
+        expect(result.body.msg).toEqual('Not found!');
+      });
+  });
+  test('responds with 400 when given an invalid id type', () => {
+    return request(app)
+      .delete('/api/comments/nonsense')
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).toEqual('Please provide a valid comment_id');
       });
   });
 });

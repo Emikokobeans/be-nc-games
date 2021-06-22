@@ -5,7 +5,8 @@ const {
   selectReviews,
   selectComments,
   addComment,
-  selectAllEndpoints
+  selectAllEndpoints,
+  selectComment
 } = require('../models/models');
 
 exports.getCategories = (req, res, next) => {
@@ -64,4 +65,13 @@ exports.postComment = (req, res, next) => {
 exports.getAllEndpoints = (req, res, next) => {
   const response = selectAllEndpoints();
   res.status(200).send(response);
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  selectComment(comment_id)
+    .then(() => {
+      res.send(204);
+    })
+    .catch((err) => next(err));
 };

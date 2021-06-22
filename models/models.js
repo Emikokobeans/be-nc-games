@@ -187,3 +187,28 @@ exports.selectAllEndpoints = () => {
   const parsedEPs = JSON.parse(endpoints);
   return parsedEPs;
 };
+
+exports.selectComment = (comment_id) => {
+  const idNum = parseInt(comment_id);
+  if (!Number.isNaN(idNum)) {
+    return db
+      .query(`SELECT * FROM comments WHERE comment_id = $1;`, [comment_id])
+      .then((result) => {
+        if (result.rows.length === 0) {
+          return Promise.reject({
+            status: 404,
+            msg: 'Not found!'
+          });
+        } else {
+          return db.query(`DELETE FROM comments WHERE comment_id = $1;`, [
+            comment_id
+          ]);
+        }
+      });
+  } else {
+    return Promise.reject({
+      status: 400,
+      msg: 'Please provide a valid comment_id'
+    });
+  }
+};
