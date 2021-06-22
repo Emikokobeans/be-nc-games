@@ -387,7 +387,7 @@ describe('GET /api', () => {
   });
 });
 
-describe.only('DELETE /api/comments/:comment_id', () => {
+describe('DELETE /api/comments/:comment_id', () => {
   test('responds with 204, no content and deletes the given comment', () => {
     return request(app).delete('/api/comments/1').expect(204);
   });
@@ -405,6 +405,26 @@ describe.only('DELETE /api/comments/:comment_id', () => {
       .expect(400)
       .then((res) => {
         expect(res.body.msg).toEqual('Please provide a valid comment_id');
+      });
+  });
+});
+
+describe('GET /api/users', () => {
+  test('responds with 200 and an array of usernames', () => {
+    return request(app)
+      .get('/api/users')
+      .expect(200)
+      .then((res) => {
+        const { users } = res.body;
+        expect(Array.isArray(users)).toBe(true);
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String)
+            })
+          );
+        });
       });
   });
 });
