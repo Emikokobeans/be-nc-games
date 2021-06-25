@@ -428,3 +428,104 @@ describe('GET /api/users', () => {
       });
   });
 });
+
+describe('GET /api/users/:username', () => {
+  test('responds with 200 and the specified user', () => {
+    return request(app)
+      .get('/api/users/mallionaire')
+      .expect(200)
+      .then((res) => {
+        const { user } = res.body;
+        expect(Array.isArray(user)).toBe(true);
+        expect(user).toHaveLength(1);
+        user.forEach((person) => {
+          expect(person).toEqual(
+            expect.objectContaining({
+              username: 'mallionaire',
+              avatar_url:
+                'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg',
+              name: 'haz'
+            })
+          );
+        });
+      });
+  });
+  test('responds with 404 when given a username that does not exist', () => {
+    return request(app)
+      .get('/api/users/nonsense')
+      .expect(404)
+      .then((res) => {
+        const { body } = res;
+        expect(body.msg).toBe('User does not exist');
+      });
+  });
+});
+
+describe('PATCH /api/comments/:comment_id', () => {
+  test('responds 200 with the updated comment - incrementing the vote', () => {
+    return request(app)
+      .patch('/api/comments/4')
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then((res) => {
+        expect(res.body).toEqual({
+          updated_comment: {
+            comment_id: 4,
+            author: 'bainesface',
+            review_id: 2,
+            votes: 17,
+            created_at: expect.any(String),
+            body: 'EPIC board game!'
+          }
+        });
+      });
+  });
+  test('responds with 200 and updated review - decrementing the vote', () => {
+    return request(app)
+      .patch('/api/comments/4')
+      .send({ inc_votes: -2 })
+      .expect(200)
+      .then((res) => {
+        expect(res.body).toEqual({
+          updated_comment: {
+            comment_id: 4,
+            author: 'bainesface',
+            review_id: 2,
+            votes: 14,
+            created_at: expect.any(String),
+            body: 'EPIC board game!'
+          }
+        });
+      });
+  });
+  test('responds with 400 when given an invalid comment id', () => {
+    return request(app)
+      .patch('/api/comments/49')
+      .send({ inc_votes: -2 })
+      .expect(400)
+      .then((res) => {
+        const { body } = res;
+        expect(body.msg).toBe('Invalid request');
+      });
+  });
+  test('responds with 400 when given an invalid id type', () => {
+    return request(app)
+      .patch('/api/comments/nonsense')
+      .send({ inc_votes: -2 })
+      .expect(400)
+      .then((res) => {
+        const { body } = res;
+        expect(body.msg).toBe('Bad request');
+      });
+  });
+  test('responds with 400 when given and invalid patch request', () => {
+    return request(app)
+      .patch('/api/comments/4')
+      .send({ inc_votes: 'nonsense' })
+      .expect(400)
+      .then((res) => {
+        const { body } = res;
+        expect(body.msg).toBe('Invalid request');
+      });
+  });
+});

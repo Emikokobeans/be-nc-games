@@ -216,3 +216,46 @@ exports.selectComment = (comment_id) => {
 exports.selectUsers = () => {
   return db.query(`SELECT username FROM users `).then(({ rows }) => rows);
 };
+
+exports.selectUsername = (username) => {
+  return db
+    .query(`SELECT * FROM users WHERE username = $1;`, [username])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: 'User does not exist'
+        });
+      } else {
+        return result.rows;
+      }
+    });
+};
+
+exports.updateCommentVotes = (comment_id, inc_votes) => {
+  const idNum = parseInt(comment_id);
+  if (!Number.isNaN(idNum)) {
+    return db
+      .query(`SELECT votes FROM comments WHERE comment_id = $1;`, [comment_id])
+      .then((result) => {
+        if (result.rows.length === 0 || typeof inc_votes !== 'number') {
+          return Promise.reject({ status: 400, msg: 'Invalid request' });
+        } else {
+          const newVotes = result.rows[0].votes + inc_votes;
+          return db
+            .query(
+              `UPDATE comments SET votes = $1 WHERE comment_id = $2 RETURNING *;`,
+              [newVotes, comment_id]
+            )
+            .then((result) => {
+              return result.rows[0];
+            });
+        }
+      });
+  } else {
+    return Promise.reject({
+      status: 400,
+      msg: 'Bad request'
+    });
+  }
+};

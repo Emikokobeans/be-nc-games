@@ -7,7 +7,9 @@ const {
   addComment,
   selectAllEndpoints,
   selectComment,
-  selectUsers
+  selectUsers,
+  selectUsername,
+  updateCommentVotes
 } = require('../models/models');
 
 exports.getCategories = (req, res, next) => {
@@ -17,6 +19,7 @@ exports.getCategories = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
+
 exports.getReviewID = (req, res, next) => {
   selectReview(req.params.review_id)
     .then((review) => {
@@ -72,7 +75,7 @@ exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
   selectComment(comment_id)
     .then(() => {
-      res.send(204);
+      res.status(204).send();
     })
     .catch((err) => next(err));
 };
@@ -81,6 +84,25 @@ exports.getUsers = (req, res, next) => {
   selectUsers()
     .then((users) => {
       res.status(200).send({ users: users });
+    })
+    .catch((err) => next(err));
+};
+
+exports.getUsername = (req, res, next) => {
+  const { username } = req.params;
+  selectUsername(username)
+    .then((username) => {
+      res.status(200).send({ user: username });
+    })
+    .catch((err) => next(err));
+};
+
+exports.patchComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { inc_votes } = req.body;
+  updateCommentVotes(comment_id, inc_votes)
+    .then((response) => {
+      res.status(200).send({ updated_comment: response });
     })
     .catch((err) => next(err));
 };

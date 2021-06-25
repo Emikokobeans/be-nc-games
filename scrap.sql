@@ -8,4 +8,4 @@
 
 -- SELECT * FROM reviews WHERE review_id = 49
 
-SELECT username FROM users 
+SELECT * FROM comments
