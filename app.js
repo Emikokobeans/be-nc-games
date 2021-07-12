@@ -4,6 +4,9 @@ const {
   handlePSQL400Errors,
   handle500s
 } = require('./errors/index');
+const cors = require('cors');
+
+app.use(cors());
 
 const apiRouter = require('./routers/api.router');
 
